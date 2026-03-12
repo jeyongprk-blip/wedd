@@ -54,7 +54,8 @@
             overflow: hidden;
         }
         .puzzle-piece {
-            background-image: url('https://github.com/jeyongprk-blip/wedd/blob/main/images/image1.png?raw=true');
+            /* 변경됨: 더 안정적인 raw.githubusercontent.com 주소 사용 */
+            background-image: url('https://raw.githubusercontent.com/jeyongprk-blip/wedd/main/images/image1.png');
             cursor: pointer;
             transition: transform 0.1s, border 0.1s;
         }
@@ -187,10 +188,18 @@
         <div id="screen-stage3" class="flex-1 flex flex-col items-center justify-start p-6 hidden">
             <div class="mb-1 mt-4 text-red-600 font-bold tracking-widest text-sm">FINAL STAGE</div>
             <h2 class="text-xl font-bold mb-1 text-white">사랑의 조각 맞추기</h2>
-            <p class="text-xs text-zinc-400 mb-4 text-center flex flex-col">
+            
+            <!-- 변경됨: 이미지 새로고침 버튼 추가 -->
+            <div class="text-xs text-zinc-400 mb-4 text-center flex flex-col items-center gap-2">
                 <span id="puzzle-desc">두 조각을 터치하여 위치를 바꾸세요.</span>
-                <span class="text-red-500 cursor-pointer mt-1 font-semibold" id="btn-auto-solve" style="display:none;">너무 어렵다면? (마법 지팡이?)</span>
-            </p>
+                <div class="flex items-center gap-4">
+                    <button class="text-red-500 cursor-pointer font-semibold hover:text-red-400 transition-colors" id="btn-auto-solve" style="display:none;">너무 어렵다면? (마법 지팡이✨)</button>
+                    <button class="text-zinc-500 cursor-pointer font-semibold flex items-center gap-1 hover:text-white transition-colors" id="btn-refresh-img">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        이미지 새로고침
+                    </button>
+                </div>
+            </div>
 
             <div class="text-red-500 font-mono text-lg mb-2 digital-timer" id="stage3-timer">0.00 초</div>
 
@@ -207,7 +216,8 @@
         <div id="screen-invitation" class="flex-1 flex flex-col items-center bg-black hidden relative">
             <div class="absolute inset-0 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%233f3f46\' fill-opacity=\'0.2\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');"></div>
             
-            <div class="w-full h-64 bg-cover bg-top relative" style="background-image: url('https://github.com/jeyongprk-blip/wedd/blob/main/images/image1.png?raw=true');">
+            <!-- 변경됨: id 속성 추가 및 더 안정적인 원본 URL 사용 -->
+            <div id="invitation-bg" class="w-full h-64 bg-cover bg-top relative" style="background-image: url('https://raw.githubusercontent.com/jeyongprk-blip/wedd/main/images/image1.png');">
                 <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
             </div>
             
@@ -310,7 +320,6 @@
                 </div>
                 
                 <div class="flex border-b border-zinc-800 text-xs sm:text-sm font-semibold text-zinc-500 overflow-x-auto whitespace-nowrap">
-                    <!-- 탭 순서와 이름 수정됨 -->
                     <button class="flex-1 py-3 px-2 text-red-500 border-b-2 border-red-500 transition-colors" id="tab-stage1" onclick="switchLeaderboardTab(1)">1단계(횟수)</button>
                     <button class="flex-1 py-3 px-2 hover:text-red-400 transition-colors" id="tab-stage2" onclick="switchLeaderboardTab(2)">2단계(정확도)</button>
                     <button class="flex-1 py-3 px-2 hover:text-red-400 transition-colors" id="tab-stage3" onclick="switchLeaderboardTab(3)">3단계(시간)</button>
@@ -553,15 +562,43 @@
         });
 
 
-        // STAGE 3 LOGIC (Dynamic Puzzle)
+        // STAGE 3 LOGIC (Dynamic Puzzle) & Refresh Button
         const puzzleGrid = document.getElementById('puzzle-grid');
         const btnStartS3 = document.getElementById('btn-start-stage3');
         const s3TimerEl = document.getElementById('stage3-timer');
         const btnAutoSolve = document.getElementById('btn-auto-solve');
+        const btnRefreshImg = document.getElementById('btn-refresh-img');
         const puzzleDesc = document.getElementById('puzzle-desc');
         
         const GRID_SIZE = 3; 
         const TOTAL_PIECES = GRID_SIZE * GRID_SIZE;
+        let currentBgUrl = 'https://raw.githubusercontent.com/jeyongprk-blip/wedd/main/images/image1.png';
+
+        // 이미지 새로고침 로직
+        btnRefreshImg.addEventListener('click', () => {
+            const svgIcon = btnRefreshImg.querySelector('svg');
+            svgIcon.classList.add('animate-spin'); // 빙글빙글 도는 애니메이션 효과
+            
+            // 캐시 우회를 위해 주소 끝에 타임스탬프 추가
+            const timestamp = new Date().getTime();
+            const freshUrl = `${currentBgUrl}?t=${timestamp}`;
+            
+            // 퍼즐 조각 배경 업데이트
+            const pieces = document.querySelectorAll('.puzzle-piece');
+            pieces.forEach(p => {
+                p.style.backgroundImage = `url('${freshUrl}')`;
+            });
+            
+            // 최종 청첩장 배경 업데이트
+            const invBg = document.getElementById('invitation-bg');
+            if (invBg) {
+                invBg.style.backgroundImage = `url('${freshUrl}')`;
+            }
+            
+            setTimeout(() => {
+                svgIcon.classList.remove('animate-spin');
+            }, 500);
+        });
 
         function updateS3Timer() {
             if(!state.s3_active) return;
@@ -642,6 +679,7 @@
                 });
 
                 btnAutoSolve.style.display = 'none';
+                btnRefreshImg.style.display = 'none'; // 퍼즐 완료 시 버튼 숨기기
                 
                 // Story Modal 띄우기
                 setTimeout(() => {
@@ -657,7 +695,7 @@
 
         btnStartS3.addEventListener('click', () => {
             btnStartS3.style.display = 'none';
-            btnAutoSolve.style.display = 'block';
+            btnAutoSolve.style.display = 'inline-block';
             state.s3_puzzle = Array.from({length: TOTAL_PIECES}, (_, i) => i);
             state.s3_puzzle.sort(() => Math.random() - 0.5);
             state.s3_selectedIdx = null;
