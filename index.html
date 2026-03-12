@@ -54,7 +54,7 @@
             overflow: hidden;
         }
         .puzzle-piece {
-            background-image: url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');
+            background-image: url('https://github.com/jeyongprk-blip/wedd/blob/main/images/image1.png?raw=true');
             cursor: pointer;
             transition: transform 0.1s, border 0.1s;
         }
@@ -115,7 +115,7 @@
             </p>
             
             <div class="w-full max-w-xs space-y-4">
-                <input type="text" id="guest-name" placeholder="도전자 이름 (방명록에 남아요)" class="w-full px-4 py-3 rounded-xl border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-red-600 text-center text-white bg-zinc-900 placeholder-zinc-500" maxlength="10">
+                <input type="text" id="guest-name" placeholder="이름 or 전화번호 (방명록에 남아요)" class="w-full px-4 py-3 rounded-xl border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-red-600 text-center text-white bg-zinc-900 placeholder-zinc-500" maxlength="10">
                 <button id="btn-start-game" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.3)] transition transform hover:scale-105 active:scale-95">
                     도전 시작하기
                 </button>
@@ -207,7 +207,7 @@
         <div id="screen-invitation" class="flex-1 flex flex-col items-center bg-black hidden relative">
             <div class="absolute inset-0 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%233f3f46\' fill-opacity=\'0.2\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');"></div>
             
-            <div class="w-full h-64 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');">
+            <div class="w-full h-64 bg-cover bg-top relative" style="background-image: url('https://github.com/jeyongprk-blip/wedd/blob/main/images/image1.png?raw=true');">
                 <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
             </div>
             
@@ -454,12 +454,19 @@
                 btnSpinS1.classList.remove('hover:bg-red-700');
                 btnSpinS1.classList.add('hover:bg-zinc-200');
 
+                // 30% 확률로 무조건 777 당첨
+                const isLucky = Math.random() < 0.3;
+
                 reelEls.forEach((el, i) => {
                     clearInterval(state.s1_intervals[i]);
                     
-                    // 재미를 위한 소소한 확률 보정 (어느 정도 도전하면 맞출 수 있도록)
-                    if(Math.random() < 0.2) state.s1_reels[i] = 7;
-                    else state.s1_reels[i] = Math.floor(Math.random() * 9) + 1;
+                    if (isLucky) {
+                        state.s1_reels[i] = 7;
+                    } else {
+                        // 70% 확률로 완전 랜덤으로 설정
+                        // (우연히 777이 나올 수도 있지만 그 확률은 1/729로 매우 낮음)
+                        state.s1_reels[i] = Math.floor(Math.random() * 9) + 1;
+                    }
                     
                     el.innerText = state.s1_reels[i];
                     el.style.transform = `translateY(0)`; 
